@@ -5,10 +5,10 @@ public class PlayerStats
     public static PlayerStats Instance { get; } = new PlayerStats();
 
     /// CONSTRUCTOR
-    ///  More stuff can be added later (i.e. stamina, other stats)
+    ///  More stuff can be added later (i.e. stamina, other stats).
     private PlayerStats()     
     {
-        ResetStats();
+        currentHealth = maxHealth;
     }
 
     /// HEALTH DATA
@@ -22,14 +22,18 @@ public class PlayerStats
     internal void TakeDamage(float damage)
     {
         currentHealth -= damage;
-        if (currentHealth < 0) currentHealth = 0;
-        UIController.Instance.UpdateUI();
+        ClampHealth();
+        if (UIController.Instance != null) UIController.Instance.UpdateUI();
     }
     internal void HealDamage(float heal)
     {
         currentHealth += heal;
-        if (currentHealth > maxHealth) currentHealth = maxHealth;
-        UIController.Instance.UpdateUI();
+        ClampHealth();
+        if (UIController.Instance != null) UIController.Instance.UpdateUI();
+    }
+    private void ClampHealth()
+    {
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
     }
     // Player can permanently increase their maxHP by finding pomegranate pickups
     internal void IncreaseMaxHealth(float healthBoost)
@@ -37,8 +41,8 @@ public class PlayerStats
         maxHealth += healthBoost;
         currentHealth += healthBoost;
         if (currentHealth > maxHealth) currentHealth = maxHealth;
-        Debug.Log("Player max health increased, new max health: " + maxHealth);
-        UIController.Instance.UpdateUI();
+        Debug.Log($"Player max health increased, new max health: {maxHealth}");
+        if (UIController.Instance != null) UIController.Instance.UpdateUI();
     }
 
     /// DAMAGE METHODS
@@ -49,15 +53,15 @@ public class PlayerStats
     internal void IncreaseDamage(float damage)        
     {
         playerDamage += damage;
-        Debug.Log("Player damage increased, new damage: " + playerDamage);
-        UIController.Instance.UpdateUI();
+        Debug.Log($"Player damage increased, new damage: {playerDamage}");
+        if (UIController.Instance != null) UIController.Instance.UpdateUI();
     }
 
     /// RESET/SPAWN LOGIC
     internal void ResetStats()
     {
         currentHealth = maxHealth;
-        UIController.Instance.UpdateUI();
+        if (UIController.Instance != null) UIController.Instance.UpdateUI();
     }
 }
 

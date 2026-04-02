@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Jumping")]
     [SerializeField] private float jumpForce = 6f;
-    [SerializeField] private float groundCheckRadius = 0.2f;   // adjusts how far the JumpCheck has to search for ground,, adjustable for tweaks
+    private float groundCheckRadius = 0.2f;   // adjusts how far the JumpCheck has to search for ground,, adjustable for tweaks
     [SerializeField] private LayerMask groundLayer;
     private Transform groundCheck;   // the invisible box child'd under the player that detects collision with ground
     private bool isGrounded;          // cant jump in mid-air (while falling or jumping)
@@ -38,11 +38,18 @@ public class PlayerMovement : MonoBehaviour
     {
         moveInput = Input.GetAxisRaw("Horizontal");
 
-        // continuously checks and updates check based on if our jump check object is touching the ground layer or not
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);        
+        // Continuously checks and updates check based on if our jump check object is touching the ground layer or not.
+        if (groundCheck != null)
+        {
+            isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        }
+        else
+        {
+            isGrounded = false;
+        }
 
-        // makes sure player is facing the correct way
-        HandleFlip();
+            // makes sure player is facing the correct way
+            HandleFlip();
 
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
-    public static UIController Instance;
+    public static UIController Instance { get; private set; }
     [SerializeField] private GameObject statsTextPanel;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI damageText;
@@ -21,12 +21,13 @@ public class UIController : MonoBehaviour
     }
     void Start()
     {
-        statsTextPanel.SetActive(true);
         UpdateUI();
     }
-    public void UpdateUI()           // called any time a stat changes
+    // Any time a player stat or other display change is needed, this is called by that script.
+    public void UpdateUI()          
     {
         healthText.text = "Health: " + PlayerStats.Instance.CurrentHealth + "/" + PlayerStats.Instance.MaxHealth;
+        healthText.text = $"Health: {PlayerStats.Instance.CurrentHealth}/{PlayerStats.Instance.MaxHealth}";
         damageText.text = "Damage: " + PlayerStats.Instance.PlayerDamage;
     }
 }

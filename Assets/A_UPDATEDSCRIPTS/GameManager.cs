@@ -3,7 +3,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     /// <summary>
-    /// So far, what this script does is manage player respawn/instantiating.
+    /// So far, what this script does is manage player instantiating. Respawn will be moved out of this as the structure develops.
     /// </summary>
     [SerializeField] private GameObject playerPrefab;
 
@@ -12,6 +12,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform[] playerSpawnPoints;
     [SerializeField] private Transform activeSpawnPoint;
 
+    private void Start()
+    {
+        /// This all is only here in Start while testing. It will be removed as both UI and respawn logic develops.
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject p in players)
+        {
+            Destroy(p);
+        }
+        Debug.Log($"{players.Length} player(s) destroyed.");
+        InstantiatePlayer(activeSpawnPoint);     // ASP is currently assigned in inspector.
+        /// Stop removal (here for my own reference)
+    }
     internal void StartGame()
     {
         if (activeSpawnPoint == null)

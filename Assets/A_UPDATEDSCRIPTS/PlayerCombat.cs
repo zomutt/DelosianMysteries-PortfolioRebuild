@@ -17,8 +17,13 @@ public class PlayerCombat : MonoBehaviour
     private PlayerEffects effects;
     private void Awake()
     {
-        effects = GetComponent<PlayerEffects>();        // Both scripts live on Player prefab
+        effects = GetComponent<PlayerEffects>();
+        if (effects == null)
+        {
+            Debug.LogError("PlayerEffects component is missing from the Player prefab!");
+        }
     }
+
     private void Start()
     {
         playerSword.SetActive(false);

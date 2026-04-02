@@ -9,6 +9,7 @@ public class PlayerEffects : MonoBehaviour
     public static PlayerEffects Instance { get; private set; }
 
     private SpriteRenderer sr;
+    [SerializeField] private GameObject playerSprite;
     private Color playerBaseColor;              // Stored when FindPlayer() is called
     private bool isFlashing;
 
@@ -46,7 +47,13 @@ public class PlayerEffects : MonoBehaviour
     }
     private void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
+        sr = playerSprite.GetComponent<SpriteRenderer>();
+        // This is important because if anything happens to the SR, it eliminates trying to figure out why the character is just "gone".
+        if (sr == null)
+        {
+            Debug.LogError("PlayerEffects: SpriteRenderer missing on Player prefab!");
+            return;
+        }
         playerBaseColor = sr.color;
         DisableAllVisuals();
         isFlashing = false;
