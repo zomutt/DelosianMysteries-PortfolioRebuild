@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 149692248913847926}
   - component: {fileID: 7552290570108423961}
   - component: {fileID: 7193780277564566294}
-  - component: {fileID: 5021123167573488577}
   - component: {fileID: 3505736520143931155}
   - component: {fileID: 5058541683583160928}
   - component: {fileID: 2619976185135824498}
@@ -169,28 +168,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 4.07, y: 9.450001}
   m_Direction: 0
---- !u!95 &5021123167573488577
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 806907195910016660}
-  m_Enabled: 0
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 9b8d244e29374094a8cd4a7f6a233bf2, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!70 &3505736520143931155
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -258,7 +235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d40b2de56a001441a47e1db773ed4db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DOTHandler
-  colorDuration: 0.1
 --- !u!1 &4066370598030360215
 GameObject:
   m_ObjectHideFlags: 0
@@ -493,7 +469,7 @@ Transform:
   m_GameObject: {fileID: 6167093416688065512}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 38.587032, y: 0.6393742, z: -49.382023}
+  m_LocalPosition: {x: 0.2, y: 0.6393742, z: -49.382023}
   m_LocalScale: {x: 4.953406, y: 5.5597754, z: 4.9382024}
   m_ConstrainProportionsScale: 0
   m_Children: []
