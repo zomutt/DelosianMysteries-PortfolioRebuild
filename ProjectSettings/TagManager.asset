@@ -23,6 +23,7 @@ TagManager:
   - Web
   - Spider
   - Fountain
+  - PlayerSpawn
   layers:
   - Default
   - TransparentFX

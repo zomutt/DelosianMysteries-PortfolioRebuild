@@ -9,7 +9,7 @@ public class PlayerEffects : MonoBehaviour
     public static PlayerEffects Instance { get; private set; }
 
     private SpriteRenderer sr;
-    private Color playerBaseColor;              // stored when FindPlayer() is called
+    private Color playerBaseColor;              // Stored when FindPlayer() is called
     private bool isFlashing;
 
     internal enum DamageType
@@ -17,18 +17,18 @@ public class PlayerEffects : MonoBehaviour
         Fire,
         Poison,
         Bleed,
-        Web,        // web is not technically a damage, but it still needs the visual feedback
+        Web,        // Web is not technically a damage, but it still needs the visual feedback
         Basic,
     }
 
-    // when harmed, the player has pop-ups flash over their head. assigned in inspector.
+    // When harmed, the player has pop-ups flash over their head. assigned in inspector.
     [SerializeField] private GameObject fireEffect;             // flame
     [SerializeField] private GameObject poisonEffect;           // fangs
     [SerializeField] private GameObject bleedEffect;            // blood drop
     [SerializeField] private GameObject webEffect;              // spider web
     [SerializeField] private GameObject basicEffect;            // "ow!" popup
 
-    // called from player combat script when the player attacks or blocks.
+    // Called from player combat script when the player attacks or blocks.
     [SerializeField] private GameObject shieldObject;
     [SerializeField] private GameObject swordObject;
     [SerializeField] private GameObject swooshObject;
@@ -51,8 +51,10 @@ public class PlayerEffects : MonoBehaviour
         DisableAllVisuals();
         isFlashing = false;
     }
-    private void DisableAllVisuals()              // prevents visuals from being seen upon start,, this allows the visuals to be cleanly found but *immediately* hidden. they should be hidden by default, but this is a failsafe.
-    {         
+    private void DisableAllVisuals()              
+    {
+        // Prevents visuals from being seen upon start; this allows the visuals to be cleanly found but *immediately* hidden.
+        // They should be hidden by default, but this is a failsafe.
         fireEffect.SetActive(false);
         poisonEffect.SetActive(false);
         bleedEffect.SetActive(false);
@@ -64,7 +66,7 @@ public class PlayerEffects : MonoBehaviour
     }
 
 
-    // more or less a method to encapsulate,, this takes the damage type and duration, then feeds that to the private IEnumerator that handles actually activating it
+    // More or less a method to encapsulate; this takes the damage type and duration, then feeds that to the private IEnumerator that handles actually activating it.
     internal void GrantStatusEffect(DamageType effect, float duration)    
     { 
         GameObject effectToActivate = null;
@@ -98,10 +100,10 @@ public class PlayerEffects : MonoBehaviour
         effectObject.SetActive(false);
     }
 
-    // called by damage script when the player is harmed, this is meant to be flashed quickly and repeatedly if undergoing repeated damage or a DOT
+    // Called by damage script when the player is harmed; this is meant to be flashed quickly and repeatedly if undergoing repeated damage or a DOT.
     internal IEnumerator FlashPlayerColor(Color flashColor)      
     {
-        if (isFlashing) yield break;      // this prevents overlap and visual bugs
+        if (isFlashing) yield break;      // This prevents overlap and visual bugs.
         sr.color = flashColor;
         isFlashing = true;
         yield return new WaitForSeconds(.1f);
@@ -109,8 +111,9 @@ public class PlayerEffects : MonoBehaviour
         isFlashing = false;
     }
 
-    // this is meant to be tweakable by the combat script to fit whatever just feels right
-    internal IEnumerator ShowSword(float duration)           // gets duration from PlayerCombat.cs
+    // This is meant to be tweakable by the combat script to fit what feels right.
+    // Gets duration from PlayerCombat.cs
+    internal IEnumerator ShowSword(float duration)           
     {
         swordObject.SetActive(true);
         swooshObject.SetActive(true);
