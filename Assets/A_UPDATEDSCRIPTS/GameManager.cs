@@ -2,40 +2,30 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    /// <summary>
-    /// So far, what this script does is manage player instantiating. Respawn will be moved out of this as the structure develops.
-    /// </summary>
-    [SerializeField] private GameObject playerPrefab;
+    public static GameManager Instance { get; private set; }
+    private RespawnManager RespawnManager;
 
-    // Respawn points are scattered throughout the level. Once the player collides with them, it sets the active respawn point.
-    // The player may backtrack through the level, but this will change where they respawn if they die. May be adjusted as flow develops.
-    [SerializeField] private Transform[] playerSpawnPoints;
-    [SerializeField] private Transform activeSpawnPoint;
-
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
     private void Start()
     {
-        /// This all is only here in Start while testing. It will be removed as both UI and respawn logic develops.
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        foreach (GameObject p in players)
-        {
-            Destroy(p);
-        }
-        Debug.Log($"{players.Length} player(s) destroyed.");
-        InstantiatePlayer(activeSpawnPoint);     // ASP is currently assigned in inspector.
-        /// Stop removal (here for my own reference)
+        Respawn();     // This is not meant to permanently live here. This lives here while I define the overarching flow and design scenes, menus, etc.
     }
-    internal void StartGame()
+    internal void Respawn()
     {
-        if (activeSpawnPoint == null)
-        {
-            activeSpawnPoint = playerSpawnPoints[0];
-            Debug.Log("SpawnPoint not found, defaulting to level start.");
-        }
-        InstantiatePlayer(activeSpawnPoint);
-    }
-    private void InstantiatePlayer(Transform spawnPoint)
-    {
-        // The rotation of the spawn points are locked and set at 0, this serves as a failsafe to prevent rotation errors.
-        Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
+        // Needs to find the RespawnManager.cs each scene because it is a non-persistent script. This avoids having to do scene checks.
+        RespawnManager = FindAnyObjectByType<RespawnManager>();
+        RespawnManager.SpawnPlayer();
+        Debug.Log("GameManager respawning player.");
     }
 }

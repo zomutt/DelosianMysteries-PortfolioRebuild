@@ -1,3 +1,4 @@
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 
 public class PlayerStats
@@ -12,20 +13,20 @@ public class PlayerStats
     }
 
     /// HEALTH DATA
-    private float maxHealth = 100;
-    internal float MaxHealth => maxHealth;
+    private int maxHealth = 100;
+    internal int MaxHealth => maxHealth;
 
-    private float currentHealth;
-    internal float CurrentHealth => currentHealth;
+    private int currentHealth;
+    internal int CurrentHealth => currentHealth;
 
     /// HEALTH METHODS
-    internal void TakeDamage(float damage)
+    internal void TakeDamage(int damage)
     {
         currentHealth -= damage;
         ClampHealth();
         if (UIController.Instance != null) UIController.Instance.UpdateUI();
     }
-    internal void HealDamage(float heal)
+    internal void HealDamage(int heal)
     {
         currentHealth += heal;
         ClampHealth();
@@ -36,7 +37,7 @@ public class PlayerStats
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
     }
     // Player can permanently increase their maxHP by finding pomegranate pickups
-    internal void IncreaseMaxHealth(float healthBoost)
+    internal void IncreaseMaxHealth(int healthBoost)
     {
         maxHealth += healthBoost;
         currentHealth += healthBoost;
@@ -46,11 +47,11 @@ public class PlayerStats
     }
 
     /// DAMAGE METHODS
-    private float playerDamage = 10;
-    internal float PlayerDamage => playerDamage;
+    private int playerDamage = 10;
+    internal int PlayerDamage => playerDamage;
 
     // Called when player finds sword upgrades, meant to be persistent and not reset. Player is unable to interact with upgrades that have already been grabbed.
-    internal void IncreaseDamage(float damage)        
+    internal void IncreaseDamage(int damage)        
     {
         playerDamage += damage;
         Debug.Log($"Player damage increased, new damage: {playerDamage}");
