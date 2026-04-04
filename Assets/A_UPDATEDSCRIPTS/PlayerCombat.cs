@@ -6,12 +6,14 @@ public class PlayerCombat : MonoBehaviour
     /// <summary>
     /// This script handles all things combat-related for the player sans holding the PlayerStats. Please see PlayerMovement.cs for movement and jumping mechanics, and PlayerStats.cs for player stats and health management.
     /// </summary>
+
     [SerializeField] private GameObject playerSword;    // assigned in inspector on the Player prefab
     [SerializeField] private GameObject playerShield;
     
     private bool canSwing;
     private bool canBlock;
 
+    // Damage values and timing windows are sourced from PlayerStats for scalability.
     private float attackWindow;
     private float blockWindow;
 
@@ -45,7 +47,7 @@ public class PlayerCombat : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(1) && canBlock)
         { 
-            if (canBlock) UseShield();
+            UseShield();
         }
     }
 
@@ -61,7 +63,7 @@ public class PlayerCombat : MonoBehaviour
         StartCoroutine(AttackCooldown());
     }
     // This below was designed this way so that player cannot brute force their way through by holding down both buttons. 
-    // You either swing, or you block. This way the player has to make rapid meaningful choices in combat.
+    // You either swing, or you block. This way, the player has to make rapid meaningful choices in combat.
     private IEnumerator AttackCooldown()
     {
         yield return new WaitForSeconds(attackWindow);
@@ -72,6 +74,8 @@ public class PlayerCombat : MonoBehaviour
     {
         if (!canBlock) return;         // Fail safe.
 
+        canSwing = false;
+        canBlock = false;
         effects.StartCoroutine(effects.ShowShield(blockWindow));
         StartCoroutine(BlockCooldown());
     }

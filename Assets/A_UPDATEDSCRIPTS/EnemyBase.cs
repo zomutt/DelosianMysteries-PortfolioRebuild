@@ -39,6 +39,8 @@ public abstract class EnemyBase : MonoBehaviour
     {
         // This ensures stats are what they should be upon activation.
         currentHealth = maxHealth;
+        canAttack = true;
+        canTakeDmg = true;
         ResetState();
     }
     internal virtual void TakeDamage(int amount)
