@@ -12,8 +12,7 @@ public abstract class EnemyBase : MonoBehaviour
 
     [Header("Combat Timers")]
     [SerializeField] protected float attackCD;
-    // iframe is identical to player swing time.
-    protected float iframe = .25f;
+    protected float iframe = PlayerStats.Instance.PlayerAttackSpeed;
 
     protected bool canAttack;
     protected bool canTakeDmg;

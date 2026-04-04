@@ -1,0 +1,138 @@
+using System;
+using System.Collections;
+using UnityEngine;
+public class PlayerEffects : MonoBehaviour
+{
+    /// <summary>
+    /// This script lives on the Player prefab and it serves the purpose of giving appropriate visual feedback and a way for the player to immediately identify what they are affected by.
+    /// </summary>
+    public static PlayerEffects Instance { get; private set; }
+
+    private SpriteRenderer sr;
+    [SerializeField] private GameObject playerSprite;
+    private Color playerBaseColor;              // Stored when FindPlayer() is called
+    private bool isFlashing;
+
+    internal enum DamageType
+    {
+        Fire,
+        Poison,
+        Bleed,
+        Web,        // Web is not technically a damage, but it still needs the visual feedback
+        Basic,
+    }
+
+    // When harmed, the player has pop-ups flash over their head. assigned in inspector.
+    [SerializeField] private GameObject fireEffect;             // flame
+    [SerializeField] private GameObject poisonEffect;           // fangs
+    [SerializeField] private GameObject bleedEffect;            // blood drop
+    [SerializeField] private GameObject webEffect;              // spider web
+    [SerializeField] private GameObject basicEffect;            // "ow!" popup
+
+    // Called from player combat script when the player attacks or blocks.
+    [SerializeField] private GameObject shieldObject;
+    [SerializeField] private GameObject swordObject;
+    [SerializeField] private GameObject swooshObject;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
+    private void Start()
+    {
+        sr = playerSprite.GetComponent<SpriteRenderer>();
+        // This is important because if anything happens to the SR, it eliminates trying to figure out why the character is just "gone".
+        if (sr == null)
+        {
+            Debug.LogError("PlayerEffects: SpriteRenderer missing on Player prefab!");
+            return;
+        }
+        playerBaseColor = sr.color;
+        DisableAllVisuals();
+        isFlashing = false;
+    }
+    private void DisableAllVisuals()              
+    {
+        // Prevents visuals from being seen upon start; this allows the visuals to be cleanly found but *immediately* hidden.
+        // They should be hidden by default, but this is a failsafe.
+        fireEffect.SetActive(false);
+        poisonEffect.SetActive(false);
+        bleedEffect.SetActive(false);
+        webEffect.SetActive(false);
+        basicEffect.SetActive(false);
+        swordObject.SetActive(false);
+        shieldObject.SetActive(false);
+        swooshObject.SetActive(false);
+    }
+
+
+    // More or less a method to encapsulate; this takes the damage type and duration, then feeds that to the private IEnumerator that handles actually activating it.
+    internal void GrantStatusEffect(DamageType effect, float duration)    
+    { 
+        GameObject effectToActivate = null;
+        switch (effect)
+        { 
+            case DamageType.Fire:
+                effectToActivate = fireEffect;
+                break;
+            case DamageType.Poison:
+                effectToActivate = poisonEffect;
+                break;
+            case DamageType.Bleed:
+                effectToActivate = bleedEffect;
+                break;
+            case DamageType.Web:
+                effectToActivate = webEffect;
+                break;
+            case DamageType.Basic:
+                effectToActivate = basicEffect;
+                break;
+        }
+        if (effectToActivate != null)
+        {
+            StartCoroutine(EffectFlash(effectToActivate, duration));
+        }
+    }
+    private IEnumerator EffectFlash(GameObject effectObject, float duration)
+    {
+        effectObject.SetActive(true);
+        yield return new WaitForSeconds(duration);
+        effectObject.SetActive(false);
+    }
+
+    // Called by damage script when the player is harmed; this is meant to be flashed quickly and repeatedly if undergoing repeated damage or a DOT.
+    // Also called by PlayerStats when healing the player (green).
+    internal IEnumerator FlashPlayerColor(Color flashColor)      
+    {
+        if (isFlashing) yield break;      // This prevents overlap and visual bugs.
+        sr.color = flashColor;
+        isFlashing = true;
+        yield return new WaitForSeconds(.1f);
+        sr.color = playerBaseColor;
+        isFlashing = false;
+    }
+
+    // This is meant to be tweakable by the combat script to fit what feels right.
+    // Gets duration from PlayerCombat.cs
+    internal IEnumerator ShowSword(float duration)           
+    {
+        swordObject.SetActive(true);
+        swooshObject.SetActive(true);
+        yield return new WaitForSeconds(duration);
+        swordObject.SetActive(false);
+        swooshObject.SetActive(false);
+    }
+    internal IEnumerator ShowShield(float duration)
+    {
+        shieldObject.SetActive(true);
+        yield return new WaitForSeconds(duration);
+        shieldObject.SetActive(false);
+    }
+}
