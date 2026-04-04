@@ -8,11 +8,12 @@ public abstract class EnemyBase : MonoBehaviour
     [Header("Base Enemy Stats")]
     [SerializeField] protected int maxHealth;
     protected int currentHealth;
-    protected int damage;
+    [SerializeField] protected int damage;
 
     [Header("Combat Timers")]
-    protected float attackCD;
-    protected float iframe;
+    [SerializeField] protected float attackCD;
+    // iframe is identical to player swing time.
+    protected float iframe = .25f;
 
     protected bool canAttack;
     protected bool canTakeDmg;
@@ -50,9 +51,8 @@ public abstract class EnemyBase : MonoBehaviour
     }
     internal virtual void DisableEnemy()
     {
-        // Either a sprite or animated skull will spawn. These images have their own scripts that will automatically be disabled/destroyed as needed.
-        if (deathSprite != null)
-            deathSprite.SetActive(true);
+        StopAllCoroutines();
+        // Object pooling is the technique I decided to use for enemy spawning -- increased performance.
         gameObject.SetActive(false);
     }
 

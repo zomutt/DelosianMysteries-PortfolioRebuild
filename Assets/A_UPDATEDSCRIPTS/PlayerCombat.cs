@@ -7,13 +7,14 @@ public class PlayerCombat : MonoBehaviour
     /// This script handles all things combat-related for the player sans holding the PlayerStats. Please see PlayerMovement.cs for movement and jumping mechanics, and PlayerStats.cs for player stats and health management.
     /// </summary>
     [SerializeField] private GameObject playerSword;    // assigned in inspector on the Player prefab
-    private bool canSwing;
-
     [SerializeField] private GameObject playerShield;
+    
+    private bool canSwing;
     private bool canBlock;
 
-    [SerializeField] private float activeTime;          // Swing and block will both have the same duration for balance and thoughtful combat choices.
-    
+    private float attackWindow;
+    private float blockWindow;
+
     private PlayerEffects effects;
     private void Awake()
     {
@@ -29,17 +30,20 @@ public class PlayerCombat : MonoBehaviour
         playerSword.SetActive(false);
         playerShield.SetActive(false);
 
+        attackWindow = PlayerStats.Instance.PlayerAttackSpeed;
+        blockWindow = PlayerStats.Instance.PlayerBlockTime;
+
         canSwing = true;
         canBlock = true;
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && canSwing)
         {
-            if (canSwing) SwingSword();
+            SwingSword();
         }
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && canBlock)
         { 
             if (canBlock) UseShield();
         }
@@ -50,24 +54,30 @@ public class PlayerCombat : MonoBehaviour
     private void SwingSword()
     {
         if (!canSwing) return;         // Fail safe.
-        effects.StartCoroutine(effects.ShowSword(activeTime));
-        StartCoroutine(Cooldown());
-    }
 
+        canSwing = false;
+        canBlock = false;
+        effects.StartCoroutine(effects.ShowSword(attackWindow));
+        StartCoroutine(AttackCooldown());
+    }
+    // This below was designed this way so that player cannot brute force their way through by holding down both buttons. 
+    // You either swing, or you block. This way the player has to make rapid meaningful choices in combat.
+    private IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(attackWindow);
+        canSwing = true;
+        canBlock = true;
+    }
     private void UseShield()
     {
         if (!canBlock) return;         // Fail safe.
-        effects.StartCoroutine(effects.ShowShield(activeTime));
-        StartCoroutine(Cooldown());
-    }
 
-    private IEnumerator Cooldown()
+        effects.StartCoroutine(effects.ShowShield(blockWindow));
+        StartCoroutine(BlockCooldown());
+    }
+    private IEnumerator BlockCooldown()
     {
-        // This was designed this way so that player cannot brute force their way through by holding down both buttons. 
-        // You either swing, or you block. This way the player has to make rapid meaningful choices in combat.
-        canSwing = false;
-        canBlock = false;
-        yield return new WaitForSeconds (activeTime);
+        yield return new WaitForSeconds(blockWindow);
         canSwing = true;
         canBlock = true;
     }
