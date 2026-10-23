@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// This serves as the blueprint for which each enemy will use and derive behaviour from.
@@ -20,6 +21,10 @@ public abstract class EnemyBase : MonoBehaviour
     [Header("Visuals")]
     // Most enemies will have a skull that rises and fades, but certain bosses and special enemies will have this differ.
     [SerializeField] protected GameObject deathSprite;
+    // Hit feedback.
+    private SpriteRenderer sr;
+    private Color originalColor;
+    [SerializeField] private float deathYOffset;
 
     // These are for Object Pooling and Resetting. Each group of enemies have their own "zone".
     // This is done to reduce clutter and system load, so each cluster can activate from the OP based on proximity.
@@ -42,7 +47,37 @@ public abstract class EnemyBase : MonoBehaviour
         canTakeDmg = true;
         ResetState();
     }
-    internal virtual void TakeDamage(int amount)
+    
+    internal void OnTriggerEnter2D(Collider2D other)
+    {
+        // Player attacks enemy.
+        if (other.CompareTag("Sword") && canTakeDmg)
+        {
+            // Prevents double hits.
+            canTakeDmg = false;
+
+            int damage = PlayerStats.Instance.PlayerDamage;
+            TakeDamage(damage);
+
+            Debug.Log($"{gameObject.name} has been hit. Dmg taken: {damage}, New hp: {currentHealth}");
+
+            if (currentHealth > 0)
+            {
+                StartCoroutine(HitFlash());
+                StartCoroutine(IFrameLogic());
+            }
+            return;
+        }
+
+        // Enemy attacks player.
+        if (other.CompareTag("Player") && canAttack)
+        {
+            ApplyDamage();
+            Debug.Log($"{gameObject.name} attacked player for {damage}. Player HP now: {PlayerStats.Instance.CurrentHealth}");
+        }
+    }
+
+    protected virtual void TakeDamage(int amount)
     {
         // Occurs on collision with player sword
         currentHealth -= amount;
@@ -50,26 +85,60 @@ public abstract class EnemyBase : MonoBehaviour
         if (currentHealth <= 0) 
             DisableEnemy();
     }
-    internal virtual void DisableEnemy()
+
+    protected virtual void DisableEnemy()
     {
         StopAllCoroutines();
-        // Object pooling is the technique I decided to use for enemy spawning -- increased performance.
+        // Spawn death effect above enemy.
+        Vector3 spawnPos = transform.position + new Vector3(0, deathYOffset, 0);
+        Instantiate(deathSprite, spawnPos, Quaternion.identity);
         gameObject.SetActive(false);
     }
 
     // This resets movement, AI, animations, etc.
-    internal virtual void ResetState() 
+    protected virtual void ResetState() 
     {
         // This is called in OnEnable, but we all know that things can just happen, so I like to have failsafes.
         currentHealth = maxHealth;
         canTakeDmg = true;
         canAttack = true;
+        
+        if (sr == null)
+        {
+            sr = GetComponent<SpriteRenderer>();
+        }
+
+        originalColor = sr.color;
+        sr.color = originalColor;
     }
 
+    private IEnumerator IFrameLogic()
+    {
+        yield return new WaitForSeconds(iframe);
+        canTakeDmg = true; 
+    }
+
+    protected virtual IEnumerator CooldownLogic()
+    {
+        canAttack = false;
+        yield return new WaitForSeconds(attackCD);
+        canAttack = true;
+    }
+    
+    private IEnumerator HitFlash()
+    {
+        sr.color = Color.red;
+        yield return new WaitForSeconds(.1f);
+        sr.color = originalColor;
+    }
+
+    protected virtual void ApplyDamage()
+    {
+        PlayerStats.Instance.TakeDamage(damage);
+        StartCoroutine(CooldownLogic());
+    }
     // Handles unique movement logic (patrol, chase, wander, etc.)
     protected abstract void HandleMovement();
     // This handles unique behaviours (rules, visuals, timing, cds, etc.)
     protected abstract void AttackBehaviour();
-    // And of course, the damage itself. This method is used to call the PlayerStats take damage in whichever way is most appropriate.
-    protected abstract void ApplyDamage(int damage);
 }

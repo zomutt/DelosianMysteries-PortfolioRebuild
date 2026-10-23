@@ -24,13 +24,13 @@ public class PlayerStats
     {
         currentHealth -= damage;
         ClampHealth();
-        if (UIController.Instance != null) UIController.Instance.UpdateUI();
+        if (UIController.Instance) UIController.Instance.UpdateUI();
     }
     internal void HealPlayer(int heal)
     {
         currentHealth += heal;
         ClampHealth();
-        if (UIController.Instance != null) UIController.Instance.UpdateUI();
+        if (UIController.Instance) UIController.Instance.UpdateUI();
     }
     private void ClampHealth()
     {
@@ -43,30 +43,29 @@ public class PlayerStats
         currentHealth += healthBoost;
         if (currentHealth > maxHealth) currentHealth = maxHealth;
         Debug.Log($"Player max health increased, new max health: {maxHealth}");
-        if (UIController.Instance != null) UIController.Instance.UpdateUI();
+        if (UIController.Instance) UIController.Instance.UpdateUI();
     }
 
     /// DAMAGE METHODS
-    private int playerDamage = 10;
-    internal int PlayerDamage => playerDamage;
-    private float playerAttackSpeed = .25f;
-    internal float PlayerAttackSpeed => playerAttackSpeed;
-    private float playerBlockTime = .25f;
-    internal float PlayerBlockTime => playerBlockTime;
+    internal int PlayerDamage { get; private set; } = 10;
+
+    internal float PlayerAttackSpeed { get; } = .25f;
+
+    internal float PlayerBlockTime { get; } = .25f;
 
     // Called when player finds sword upgrades, meant to be persistent and not reset. Player is unable to interact with upgrades that have already been grabbed.
     internal void IncreaseDamage(int damage)        
     {
-        playerDamage += damage;
-        Debug.Log($"Player damage increased, new damage: {playerDamage}");
-        if (UIController.Instance != null) UIController.Instance.UpdateUI();
+        PlayerDamage += damage;
+        Debug.Log($"Player damage increased, new damage: {PlayerDamage}");
+        if (UIController.Instance) UIController.Instance.UpdateUI();
     }
 
     /// RESET/SPAWN LOGIC
     internal void ResetStats()
     {
         currentHealth = maxHealth;
-        if (UIController.Instance != null) UIController.Instance.UpdateUI();
+        if (UIController.Instance) UIController.Instance.UpdateUI();
     }
 }
 
