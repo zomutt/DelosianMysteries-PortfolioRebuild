@@ -11,6 +11,8 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 6.0f;
+
+    private float currentSpeed;
     // TODO: Sprint
     private Vector2 moveInput;
 
@@ -53,9 +55,18 @@ public class PlayerMovement : MonoBehaviour
         }
         // makes sure player is facing the correct way
         HandleFlip();
-        bool moving = Mathf.Abs(moveInput.x) > 0.01f;
-        animator.SetBool(Walk, moving);
-        animator.SetBool(Idle, !moving);
+        // bool moving = Mathf.Abs(moveInput.x) > 0.01f;
+        // if (moving) Debug.Log(moving);
+        // animator.SetBool(Walk, moving);
+        // animator.SetBool(Walk, !moving);
+        
+    }
+
+    private void FixedUpdate()
+    {
+        rb.linearVelocity = new Vector2(moveInput.x * movementSpeed, rb.linearVelocity.y);
+        currentSpeed = rb.linearVelocity.magnitude;
+        animator.SetFloat(Walk, currentSpeed);
     }
 
     private void OnMove(InputValue value)
@@ -66,11 +77,6 @@ public class PlayerMovement : MonoBehaviour
     private void OnJump(InputValue value)
     {
         rb.linearVelocity = Vector2.up * jumpForce;
-    }
-
-    private void FixedUpdate()
-    {
-        rb.linearVelocity = new Vector2(moveInput.x * movementSpeed, rb.linearVelocity.y);
     }
 
     private void HandleFlip()        // Left/right facing
