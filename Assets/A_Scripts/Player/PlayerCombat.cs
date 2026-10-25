@@ -3,25 +3,29 @@ using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
 {
+    private static readonly int Swing = Animator.StringToHash("Swing");
+
     /// <summary>
-    /// This script handles all things combat-related for the player sans holding the PlayerStats. Please see PlayerMovement.cs for movement and jumping mechanics, and PlayerStats.cs for player stats and health management.
+    /// This script handles all things combat-related for the player sans holding the PlayerStats.
+    /// Please see PlayerMovement.cs for movement and jumping mechanics, and PlayerStats.cs for player stats and health management.
     /// </summary>
 
-    [SerializeField] private GameObject playerSword;    // assigned in inspector on the Player prefab
-    [SerializeField] private GameObject playerShield;
-    
+    // [Header("Equipment")]
+    // [SerializeField] private GameObject playerSword;   // assigned in inspector on the Player prefab
+    // [SerializeField] private GameObject playerShield;
+
+    [Header("State")]
     private bool canSwing;
     private bool canBlock;
 
-    // Damage values and timing windows are sourced from PlayerStats for scalability.
-    private float attackWindow;
-    private float blockWindow;
-
+    [Header("Components")]
     private PlayerEffects effects;
+    private Animator animator;
+
     private void Awake()
     {
         effects = GetComponent<PlayerEffects>();
-        if (effects == null)
+        if (!effects)
         {
             Debug.LogError("PlayerEffects component is missing from the Player prefab!");
         }
@@ -29,20 +33,20 @@ public class PlayerCombat : MonoBehaviour
 
     private void Start()
     {
-        playerSword.SetActive(false);
-        playerShield.SetActive(false);
-
-        attackWindow = PlayerStats.Instance.PlayerAttackSpeed;
-        blockWindow = PlayerStats.Instance.PlayerBlockTime;
+        // playerSword.SetActive(false);
+        // playerShield.SetActive(false);
 
         canSwing = true;
         canBlock = true;
+        
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(0) && canSwing)
         {
+            Debug.Log("Clicky");
             SwingSword();
         }
         if (Input.GetMouseButtonDown(1) && canBlock)
@@ -56,19 +60,22 @@ public class PlayerCombat : MonoBehaviour
     private void SwingSword()
     {
         if (!canSwing) return;         // Fail safe.
-
+        Debug.Log("Swangin'");
+        PlayerMovement.Instance.canMove = false;
         canSwing = false;
         canBlock = false;
-        effects.StartCoroutine(effects.ShowSword(attackWindow));
+        animator.SetTrigger(Swing);
         StartCoroutine(AttackCooldown());
     }
+    
     // This below was designed this way so that player cannot brute force their way through by holding down both buttons. 
     // You either swing, or you block. This way, the player has to make rapid meaningful choices in combat.
     private IEnumerator AttackCooldown()
     {
-        yield return new WaitForSeconds(attackWindow);
+        yield return new WaitForSeconds(.75f);    // Times with the animator
         canSwing = true;
         canBlock = true;
+        PlayerMovement.Instance.canMove = true;
     }
     private void UseShield()
     {
@@ -76,13 +83,14 @@ public class PlayerCombat : MonoBehaviour
 
         canSwing = false;
         canBlock = false;
-        effects.StartCoroutine(effects.ShowShield(blockWindow));
+        PlayerMovement.Instance.canMove = false;
         StartCoroutine(BlockCooldown());
     }
     private IEnumerator BlockCooldown()
     {
-        yield return new WaitForSeconds(blockWindow);
+        yield return new WaitForSeconds(.25f);
         canSwing = true;
         canBlock = true;
+        PlayerMovement.Instance.canMove = true;
     }
 }

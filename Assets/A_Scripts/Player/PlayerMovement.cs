@@ -3,15 +3,15 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public static PlayerMovement Instance;
     private static readonly int Walk = Animator.StringToHash("Walk");
-    private static readonly int Idle = Animator.StringToHash("Idle");
+    private static readonly int Jump = Animator.StringToHash("Jump");
 
     /// <summary>
     /// This script purely handles player movement and jumping. Please see PlayerCombat.cs for combat-related mechanics, and PlayerStats.cs for player stats and health management.
     /// </summary>
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 6.0f;
-
     private float currentSpeed;
     // TODO: Sprint
     private Vector2 moveInput;
@@ -22,7 +22,8 @@ public class PlayerMovement : MonoBehaviour
     private readonly float groundCheckRadius = 0.2f; // how far the ground check searches for ground, adjustable for tweaks
     private Transform groundCheck;                   // the invisible child under the player that detects collision with ground
     private bool isGrounded;                         // can't jump in midair (while falling or jumping)
-
+    public bool canMove = true;
+    
     [Header("Components")]
     private Rigidbody2D rb;
     private Animator animator;
@@ -30,6 +31,17 @@ public class PlayerMovement : MonoBehaviour
     [Header("Scale")]
     private Vector3 startingScale;
 
+    private void Awake()
+    {
+        if (!Instance)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -39,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
         else Debug.Log("Player can't find GroundCheck child.");
 
         startingScale =
-            transform.localScale; // the source sprite has *unique* proportions, so this scaling step ensures it displays correctly in-game.
+            transform.localScale; // Quite literally everything will break without this. I'm not joking.
     }
 
     private void Update()
@@ -55,28 +67,27 @@ public class PlayerMovement : MonoBehaviour
         }
         // makes sure player is facing the correct way
         HandleFlip();
-        // bool moving = Mathf.Abs(moveInput.x) > 0.01f;
-        // if (moving) Debug.Log(moving);
-        // animator.SetBool(Walk, moving);
-        // animator.SetBool(Walk, !moving);
-        
     }
 
     private void FixedUpdate()
     {
         rb.linearVelocity = new Vector2(moveInput.x * movementSpeed, rb.linearVelocity.y);
         currentSpeed = rb.linearVelocity.magnitude;
-        animator.SetFloat(Walk, currentSpeed);
+        if (isGrounded) animator.SetFloat(Walk, currentSpeed);
+        else  animator.SetFloat(Walk, 0);
     }
 
     private void OnMove(InputValue value)
     {
+        if (!canMove) return;
         moveInput = value.Get<Vector2>();
     }
 
     private void OnJump(InputValue value)
     {
+        if(!canMove || !isGrounded)  return;
         rb.linearVelocity = Vector2.up * jumpForce;
+        animator.SetTrigger(Jump);
     }
 
     private void HandleFlip()        // Left/right facing

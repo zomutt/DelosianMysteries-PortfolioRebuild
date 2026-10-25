@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        if (!Instance)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -23,7 +23,8 @@ public class GameManager : MonoBehaviour
     }
     internal void Respawn()
     {
-        // Needs to find the RespawnManager.cs each scene because it is a non-persistent script. This avoids having to do scene checks.
+        // Needs to find the RespawnManager.cs each scene because it is a non-persistent script.
+        // This avoids having to do scene checks.
         RespawnManager = FindAnyObjectByType<RespawnManager>();
         RespawnManager?.SpawnPlayer();
         Debug.Log("GameManager respawning player.");

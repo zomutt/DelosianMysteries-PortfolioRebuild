@@ -36,7 +36,7 @@ public class PlayerEffects : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance && Instance != this)
         {
             Destroy(gameObject);
         }
@@ -49,7 +49,7 @@ public class PlayerEffects : MonoBehaviour
     {
         sr = playerSprite.GetComponent<SpriteRenderer>();
         // This is important because if anything happens to the SR, it eliminates trying to figure out why the character is just "gone".
-        if (sr == null)
+        if (!sr)
         {
             Debug.LogError("PlayerEffects: SpriteRenderer missing on Player prefab!");
             return;
@@ -95,7 +95,7 @@ public class PlayerEffects : MonoBehaviour
                 effectToActivate = basicEffect;
                 break;
         }
-        if (effectToActivate != null)
+        if (effectToActivate)
         {
             StartCoroutine(EffectFlash(effectToActivate, duration));
         }
@@ -118,20 +118,20 @@ public class PlayerEffects : MonoBehaviour
         isFlashing = false;
     }
 
-    // This is meant to be tweakable by the combat script to fit what feels right.
-    // Gets duration from PlayerCombat.cs
-    internal IEnumerator ShowSword(float duration)           
-    {
-        swordObject.SetActive(true);
-        swooshObject.SetActive(true);
-        yield return new WaitForSeconds(duration);
-        swordObject.SetActive(false);
-        swooshObject.SetActive(false);
-    }
-    internal IEnumerator ShowShield(float duration)
-    {
-        shieldObject.SetActive(true);
-        yield return new WaitForSeconds(duration);
-        shieldObject.SetActive(false);
-    }
+    // // This is meant to be tweakable by the combat script to fit what feels right.
+    // // Gets duration from PlayerCombat.cs
+    // internal IEnumerator ShowSword(float duration)           
+    // {
+    //     swordObject.SetActive(true);
+    //     swooshObject.SetActive(true);
+    //     yield return new WaitForSeconds(duration);
+    //     swordObject.SetActive(false);
+    //     swooshObject.SetActive(false);
+    // }
+    // internal IEnumerator ShowShield(float duration)
+    // {
+    //     shieldObject.SetActive(true);
+    //     yield return new WaitForSeconds(duration);
+    //     shieldObject.SetActive(false);
+    // }
 }
