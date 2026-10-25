@@ -1,27 +1,28 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
 {
-    private static readonly int Swing = Animator.StringToHash("Swing");
+    public static PlayerCombat Instance;
+    private static readonly int Swinging = Animator.StringToHash("Swinging");
 
     /// <summary>
     /// This script handles all things combat-related for the player sans holding the PlayerStats.
     /// Please see PlayerMovement.cs for movement and jumping mechanics, and PlayerStats.cs for player stats and health management.
     /// </summary>
-
-    // [Header("Equipment")]
-    // [SerializeField] private GameObject playerSword;   // assigned in inspector on the Player prefab
-    // [SerializeField] private GameObject playerShield;
-
+    
     [Header("State")]
-    private bool canSwing;
-    private bool canBlock;
+    private bool canSwing = true;
+    private bool canBlock = true;
+    private bool isSwinging = false;
 
     [Header("Components")]
     private PlayerEffects effects;
     private Animator animator;
-
+    [SerializeField] private AnimationClip atkAnim;     // Used for length
+    private GameObject sword;
+    
     private void Awake()
     {
         effects = GetComponent<PlayerEffects>();
@@ -29,57 +30,53 @@ public class PlayerCombat : MonoBehaviour
         {
             Debug.LogError("PlayerEffects component is missing from the Player prefab!");
         }
+
+        if (!Instance) Instance = this;
+        else Destroy(this);
     }
 
     private void Start()
     {
-        // playerSword.SetActive(false);
-        // playerShield.SetActive(false);
-
-        canSwing = true;
-        canBlock = true;
-        
         animator = GetComponent<Animator>();
+        sword = GetComponentInChildren<PlayerSword>().gameObject;
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && canSwing)
-        {
-            Debug.Log("Clicky");
-            SwingSword();
-        }
         if (Input.GetMouseButtonDown(1) && canBlock)
         { 
             UseShield();
         }
     }
 
-    // SwingSword() and UseShield() both only affect cooldowns and display time.
-    // The actual hit logic will live on the enemy script; the enemy script has a collision detector that grabs player damage from PlayerStats.
-    private void SwingSword()
+    private void OnAttack()
     {
-        if (!canSwing) return;         // Fail safe.
-        Debug.Log("Swangin'");
-        PlayerMovement.Instance.canMove = false;
+        if (!canSwing || isSwinging) return;       // if you swang while swangin, u aint gonna swang        
         canSwing = false;
         canBlock = false;
-        animator.SetTrigger(Swing);
-        StartCoroutine(AttackCooldown());
+        StartCoroutine(AttackSequence());
     }
     
     // This below was designed this way so that player cannot brute force their way through by holding down both buttons. 
     // You either swing, or you block. This way, the player has to make rapid meaningful choices in combat.
-    private IEnumerator AttackCooldown()
+    private IEnumerator AttackSequence()
     {
-        yield return new WaitForSeconds(.75f);    // Times with the animator
+        isSwinging = true;
+        sword.SetActive(true);
+        animator.SetBool(Swinging, true);
+        
+        yield return new WaitForSeconds(atkAnim.length);
+        
+        sword.SetActive(false);
+        animator.SetBool(Swinging, false);
+        
+        isSwinging = false;
         canSwing = true;
         canBlock = true;
-        PlayerMovement.Instance.canMove = true;
     }
     private void UseShield()
     {
-        if (!canBlock) return;         // Fail safe.
+        if (!canBlock) return;      
 
         canSwing = false;
         canBlock = false;
@@ -92,5 +89,12 @@ public class PlayerCombat : MonoBehaviour
         canSwing = true;
         canBlock = true;
         PlayerMovement.Instance.canMove = true;
+    }
+
+    public void AttackEnemy(GameObject target)      // Called by PlayerSword.cs
+    {
+        EnemyBase enemyBase = target.GameObject().GetComponent<EnemyBase>();
+        if (!enemyBase) Debug.LogWarning("wtf bruh how did we even get here");
+        enemyBase.TakeDamage(PlayerStats.Instance.PlayerDamage);
     }
 }

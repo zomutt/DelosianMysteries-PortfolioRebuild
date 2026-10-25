@@ -4,8 +4,10 @@ using System.Collections;
 /// <summary>
 /// This serves as the blueprint for which each enemy will use and derive behaviour from.
 /// </summary>
+[RequireComponent(typeof(EnemyBase))]
 public abstract class EnemyBase : MonoBehaviour
 {
+    public static EnemyBase Instance;
     [Header("Base Enemy Stats")]
     [SerializeField] protected int maxHealth;
     protected int currentHealth;
@@ -77,7 +79,7 @@ public abstract class EnemyBase : MonoBehaviour
         }
     }
 
-    protected virtual void TakeDamage(int amount)
+    public virtual void TakeDamage(int amount)
     {
         // Occurs on collision with player sword
         currentHealth -= amount;
