@@ -49,10 +49,6 @@ public class PlayerStats
     /// DAMAGE METHODS
     internal int PlayerDamage { get; private set; } = 10;
 
-    internal float PlayerAttackSpeed { get; } = .25f;
-
-    internal float PlayerBlockTime { get; } = .25f;
-
     // Called when player finds sword upgrades, meant to be persistent and not reset. Player is unable to interact with upgrades that have already been grabbed.
     internal void IncreaseDamage(int damage)        
     {

@@ -15,7 +15,8 @@ public abstract class EnemyBase : MonoBehaviour
 
     [Header("Combat Timers")]
     [SerializeField] protected float attackCD;
-    protected float iframe = PlayerStats.Instance.PlayerAttackSpeed;
+
+    protected float iframe = .25f;
 
     protected bool canAttack;
     protected bool canTakeDmg;
@@ -84,6 +85,7 @@ public abstract class EnemyBase : MonoBehaviour
         // Occurs on collision with player sword
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        Debug.Log($"{gameObject.name} has been hit for {amount} damage. New hp: {currentHealth}");
         if (currentHealth <= 0) 
             DisableEnemy();
     }

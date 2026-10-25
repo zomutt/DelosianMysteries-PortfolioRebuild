@@ -22,14 +22,14 @@ public class PlayerCombat : MonoBehaviour
     private Animator animator;
     [SerializeField] private AnimationClip atkAnim;     // Used for length
     private GameObject sword;
-    
+    public float playerAttackSpeed;
     private void Awake()
     {
-        effects = GetComponent<PlayerEffects>();
-        if (!effects)
-        {
-            Debug.LogError("PlayerEffects component is missing from the Player prefab!");
-        }
+        // effects = GetComponent<PlayerEffects>();
+        // if (!effects)
+        // {
+        //     Debug.LogError("PlayerEffects component is missing from the Player prefab!");
+        // }
 
         if (!Instance) Instance = this;
         else Destroy(this);
@@ -39,6 +39,7 @@ public class PlayerCombat : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         sword = GetComponentInChildren<PlayerSword>().gameObject;
+        playerAttackSpeed = atkAnim.length;
     }
 
     private void Update()
@@ -93,6 +94,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void AttackEnemy(GameObject target)      // Called by PlayerSword.cs
     {
+        Debug.Log("Player attacking enemy");
         EnemyBase enemyBase = target.GameObject().GetComponent<EnemyBase>();
         if (!enemyBase) Debug.LogWarning("wtf bruh how did we even get here");
         enemyBase.TakeDamage(PlayerStats.Instance.PlayerDamage);

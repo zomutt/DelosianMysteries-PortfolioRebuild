@@ -6,6 +6,7 @@ public class PlayerSword : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
+            Debug.Log("Sword hit enemy");
             PlayerCombat.Instance.AttackEnemy(other.gameObject);
         }
     }
