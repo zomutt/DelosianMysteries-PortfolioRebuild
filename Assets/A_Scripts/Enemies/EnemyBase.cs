@@ -29,6 +29,8 @@ public abstract class EnemyBase : MonoBehaviour
     private Color originalColor;
     [SerializeField] private float deathYOffset;
 
+    private Animator animator;
+
     // These are for Object Pooling and Resetting. Each group of enemies have their own "zone".
     // This is done to reduce clutter and system load, so each cluster can activate from the OP based on proximity.
     protected Vector3 startingPosition;
@@ -40,6 +42,7 @@ public abstract class EnemyBase : MonoBehaviour
         // These are stored for reset purposes
         startingPosition = transform.position;
         startingRotation = transform.rotation;
+        animator = GetComponent<Animator>();
     }
 
     protected virtual void OnEnable()
@@ -93,6 +96,7 @@ public abstract class EnemyBase : MonoBehaviour
     protected virtual void DisableEnemy()
     {
         StopAllCoroutines();
+        animator.SetTrigger("Die");
         // Spawn death effect above enemy.
         Vector3 spawnPos = transform.position + new Vector3(0, deathYOffset, 0);
         Instantiate(deathSprite, spawnPos, Quaternion.identity);
